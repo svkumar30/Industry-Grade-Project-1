@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: abc-tech-deploy
+  labels:
+    app: abc_deploy  # Added labels for Deployment
+spec:
+  selector:
+    matchLabels:
+      app: abc_deploy
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: abc_deploy
+    spec:
+      containers:
+      - name: abc-app
+        image: jsachdev07/abc_tech:latest
+        ports:
+        - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: abc-nodeport-svc
+spec:
+  selector:
+    app: abc_deploy
+  ports:
+    - protocol: TCP
+      port: 80            # Typically service ports are 80 or 443
+      targetPort: 8080    # Matches the containerPort in the Deployment
+      nodePort: 30001     # Optional, or let Kubernetes assign one if omitted
+  type: NodePort
