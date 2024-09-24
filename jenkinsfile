@@ -34,6 +34,43 @@ pipeline
 				sh 'mvn package'
 			}
 		}
+		stage('Build Docker Image')
+		{
+			steps
+			{
+			        sh 'cp /var/lib/jenkins/workspace/$JOB_NAME/target/ABCtechnologies-1.0.war abc_tech.war'
+                                sh 'docker build -t abc_tech:$BUILD_NUMBER .'
+				sh 'docker tag abc_tech:$BUILD_NUMBER vijay1453/abc_tech:latest'
+			}
+		}
+
+		stage('Push Docker Image')
+		{ 
+			steps
+			{   
+			    withDockerRegistry([ credentialsId: "vijay1453-dockerhub", url: "" ])
+			    {
+			       sh 'docker push vijay1453/abc_tech:$BUILD_NUMBER'
+			    }
+			}
+		}
+
+		stage('Deploy as container')
+		{
+			steps
+			{
+				sh 'docker run -itd -P vijay1453/abc_tech:$BUILD_NUMBER'
+			}
+		}
+
+		stage('Deploy to k8s cluster ')
+		{
+			steps
+			{
+				sh 'kubectl apply -f app.yaml'
+		    	}
+		}
+
+
    }
 }
-
