@@ -59,7 +59,7 @@ pipeline
 		{
 			steps
 			{
-				sh 'docker run -itd -P vijay1453/abc_tech:$BUILD_NUMBER'
+				sh 'docker run -itd -p 9090:9090 vijay1453/abc_tech:$BUILD_NUMBER'
 			}
 		}
 

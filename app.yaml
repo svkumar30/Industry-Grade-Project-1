@@ -3,12 +3,12 @@ kind: Deployment
 metadata:
   name: abc-tech-deploy
   labels:
-    app: abc_deploy  # Added labels for Deployment
+    app: abc_deploy
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: abc_deploy
-  replicas: 3
   template:
     metadata:
       labels:
@@ -18,7 +18,7 @@ spec:
       - name: abc-app
         image: vijay1453/abc_tech:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 9090  # Updated to match the Dockerfile
 
 ---
 
@@ -31,7 +31,7 @@ spec:
     app: abc_deploy
   ports:
     - protocol: TCP
-      port: 80            # Typically service ports are 80 or 443
-      targetPort: 8080    # Matches the containerPort in the Deployment
-      nodePort: 30001     # Optional, or let Kubernetes assign one if omitted
+      port: 80             # External service port
+      targetPort: 9090     # Updated to match containerPort
+      nodePort: 30001      # Optional, for NodePort service
   type: NodePort
