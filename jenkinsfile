@@ -7,7 +7,7 @@ pipeline
 		{
 			steps
 			{
-				git 'https://github.com/svkumar30/igp-sep2024.git'
+				git 'https://github.com/svkumar30/Industry-Grade-Project-1.git'
 			}
 		}
 		
