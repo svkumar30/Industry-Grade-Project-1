@@ -33,6 +33,6 @@ spec:
     - protocol: TCP
       port: 80            	 # External service port
       targetPort: 9090     	 # Updated to match containerPort
-      nodePort: 30000-32767      # NodePort, within the valid range
+      nodePort: 30000-32767  # NodePort, within the valid range
   type: NodePort          	 # Correct indentation for the NodePort service type
 
