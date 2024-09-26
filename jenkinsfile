@@ -1,76 +1,71 @@
-pipeline
-{
-	agent any
-	stages
-	{
-		stage('Code Checkout')
-		{
-			steps
-			{
-				git 'https://github.com/svkumar30/Industry-Grade-Project-1.git'
-			}
-		}
-		
-		stage('Code Compile')
-		{
-			steps
-			{
-				sh 'mvn compile'
-			}
-		}
+pipeline {
+    agent any
+    environment {
+        // Define variables for reuse
+        IMAGE_NAME = "vijay1453/abc_tech"
+    }
 
-		stage('Test')
-		{
-			steps
-			{
-				sh 'mvn test'
-			}
-		}
+    stages {
+        stage('Code Checkout') {
+            steps {
+                git 'https://github.com/svkumar30/Industry-Grade-Project-1.git'
+            }
+        }
 
-		stage('Build')
-		{
-			steps
-			{
-				sh 'mvn package'
-			}
-		}
-		stage('Build Docker Image')
-		{
-			steps
-			{
-			        sh 'cp /var/lib/jenkins/workspace/$JOB_NAME/target/ABCtechnologies-1.0.war abc_tech.war'
-                                sh 'docker build -t abc_tech:$BUILD_NUMBER .'
-				sh 'docker tag abc_tech:$BUILD_NUMBER vijay1453/abc_tech:latest'
-			}
-		}
+        stage('Code Compile') {
+            steps {
+                sh 'mvn compile'
+            }
+        }
 
-		stage('Push Docker Image')
-		{ 
-			steps
-			{   
-			    withDockerRegistry([ credentialsId: "vijay1453-dockerhub", url: "" ])
-			    {
-			       sh 'docker push vijay1453/abc_tech:$BUILD_NUMBER'
-			    }
-			}
-		}
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
 
-		stage('Deploy as container')
-		{
-			steps
-			{
-				sh 'docker run -itd -p 9090:9090 vijay1453/abc_tech:$BUILD_NUMBER'
-			}
-		}
+        stage('Build') {
+            steps {
+                sh 'mvn package'
+            }
+        }
 
-		stage('Deploy to k8s cluster ')
-		{
-			steps
-			{
-				sh 'kubectl apply -f app.yaml'
-		    	}
-		}
+        stage('Build Docker Image') {
+            steps {
+                // Use WORKSPACE variable for the path to target WAR file
+                sh 'cp ${WORKSPACE}/target/ABCtechnologies-1.0.war abc_tech.war'
+                sh 'docker build -t abc_tech:$BUILD_NUMBER .'
+                sh 'docker tag abc_tech:$BUILD_NUMBER ${IMAGE_NAME}:latest'
+            }
+        }
 
+        stage('Push Docker Image') {
+            steps {
+                withDockerRegistry([credentialsId: "vijay1453-dockerhub", url: ""]) {
+                    sh 'docker push ${IMAGE_NAME}:$BUILD_NUMBER'
+                }
+            }
+        }
 
-   }
+        stage('Deploy as container') {
+            steps {
+                sh 'docker run -itd -p 9090:9090 ${IMAGE_NAME}:$BUILD_NUMBER'
+            }
+        }
+
+        stage('Deploy to k8s cluster') {
+            steps {
+                sh 'kubectl apply -f app.yaml'
+            }
+        }
+    }
+
+    post {
+        always {
+            // Clean up Docker containers and images after job completion
+            sh 'docker rm -f $(docker ps -a -q)'
+            sh 'docker rmi $(docker images -f "dangling=true" -q) || true'
+        }
+    }
 }
+

@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: abc-tech-deploy
+  name: abc_deploy
   labels:
     app: abc_deploy
 spec:
@@ -31,7 +31,8 @@ spec:
     app: abc_deploy
   ports:
     - protocol: TCP
-      port: 80             # External service port
-      targetPort: 9090     # Updated to match containerPort
-      nodePort: 30001      # Optional, for NodePort service
-  type: NodePort
+      port: 80            	 # External service port
+      targetPort: 9090     	 # Updated to match containerPort
+      nodePort: 30000-32767      # NodePort, within the valid range
+  type: NodePort          	 # Correct indentation for the NodePort service type
+
