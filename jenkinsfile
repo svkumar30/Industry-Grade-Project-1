@@ -1,8 +1,8 @@
 pipeline {
     agent any
     environment {
-        // Define variables for reuse
-        IMAGE_NAME = "vijay1453/abc_tech"
+        DOCKER_IMAGE = "vijay1453/abcapp"
+        WORK_DIR = "/var/lib/jenkins/workspace/Package"
     }
 
     stages {
@@ -32,38 +32,37 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Use WORKSPACE variable for the path to target WAR file
-                sh 'cp ${WORKSPACE}/target/ABCtechnologies-1.0.war abc_tech.war'
-                sh 'docker build -t abc_tech:$BUILD_NUMBER .'
-                sh 'docker tag abc_tech:$BUILD_NUMBER ${IMAGE_NAME}:latest'
+                sh 'cp ${WORK_DIR}/target/ABCtechnologies-1.0.war abc_tech.war'
+                sh 'docker build -t ${DOCKER_IMAGE}:$BUILD_NUMBER .'
+                sh 'docker tag ${DOCKER_IMAGE}:$BUILD_NUMBER ${DOCKER_IMAGE}:latest'
             }
         }
 
         stage('Push Docker Image') {
             steps {
                 withDockerRegistry([credentialsId: "vijay1453-dockerhub", url: ""]) {
-                    sh 'docker push ${IMAGE_NAME}:$BUILD_NUMBER'
+                    sh 'docker push ${DOCKER_IMAGE}:$BUILD_NUMBER'
+                    sh 'docker push ${DOCKER_IMAGE}:latest'
                 }
             }
         }
 
         stage('Deploy as container') {
             steps {
-                sh 'docker run -itd -p 9090:9090 ${IMAGE_NAME}:$BUILD_NUMBER'
+                sh 'docker run -itd -p 9090:9090 ${DOCKER_IMAGE}:$BUILD_NUMBER'
             }
         }
 
         stage('Deploy to k8s cluster') {
             steps {
-                sh 'kubectl apply -f app.yaml'
+                sh 'kubectl set image deployment/abcapp abcapp=${DOCKER_IMAGE}:$BUILD_NUMBER'
             }
         }
     }
 
     post {
         always {
-            // Clean up Docker containers and images after job completion
-            sh 'docker rm -f $(docker ps -a -q)'
+            sh 'docker rm -f abcapp || true'
             sh 'docker rmi $(docker images -f "dangling=true" -q) || true'
         }
     }
