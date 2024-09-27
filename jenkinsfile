@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE = "vijay1453/abcapp"
-        WORK_DIR = "/var/lib/jenkins/workspace/Package"
+        WORK_DIR = "/var/lib/jenkins/workspace/CI-CD-IGP"
     }
 
     stages {
