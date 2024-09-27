@@ -41,7 +41,7 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 withDockerRegistry([credentialsId: "vijay1453-dockerhub", url: ""]) {
-                    sh 'docker push ${DOCKER_IMAGE}:$BUILD_NUMBER'
+                    sh 'docker push ${DOCKER_IMAGE}:latest'
                     //sh 'docker push ${DOCKER_IMAGE}:latest'
                 }
             }
@@ -49,13 +49,13 @@ pipeline {
 
         stage('Deploy as container') {
             steps {
-                sh 'docker run -itd -p 9090:9090 ${DOCKER_IMAGE}:$BUILD_NUMBER'
+                sh 'docker run -itd -p 9090:9090 ${DOCKER_IMAGE}latest'
             }
         }
 
         stage('Deploy to k8s cluster') {
             steps {
-                sh 'kubectl set image deployment/abcapp abcapp=${DOCKER_IMAGE}:$BUILD_NUMBER'
+                sh 'kubectl set image deployment/abcapp abcapp=${DOCKER_IMAGE}:latest'
             }
         }
     }
@@ -67,5 +67,3 @@ pipeline {
         }
     }
 }
-
-
