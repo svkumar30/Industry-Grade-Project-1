@@ -1,24 +1,26 @@
+# app.yaml
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: abc-deploy  # Changed from abc_deploy to abc-deploy
+  name: abc-deploy
   labels:
-    app: abc-deploy
+    app: abc-deploy  # Label applied to deployment
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: abc-deploy
+      app: abc-deploy  # Pods will have this label
   template:
     metadata:
       labels:
-        app: abc-deploy
+        app: abc-deploy  # Pods inherit this label
     spec:
       containers:
       - name: abc-app
         image: vijay1453/abc_tech:latest
         ports:
-        - containerPort: 9090  # Match this with the port in your Dockerfile
+        - containerPort: 9090  # Match the exposed port
 
 ---
 
@@ -28,10 +30,10 @@ metadata:
   name: abc-nodeport-svc
 spec:
   selector:
-    app: abc-deploy  # Updated to match the deployment name
+    app: abc-deploy  # This must match the pod label
   ports:
     - protocol: TCP
-      port: 80                   # External service port
-      targetPort: 9090           # Match containerPort
-      nodePort: 30000            # NodePort
+      port: 80
+      targetPort: 9090
+      nodePort: 30000
   type: NodePort
