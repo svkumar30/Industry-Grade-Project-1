@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: abc_deploy
+  name: abc-deploy  # Changed from abc_deploy to abc-deploy
   labels:
-    app: abc_deploy
+    app: abc-deploy
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: abc_deploy
+      app: abc-deploy
   template:
     metadata:
       labels:
-        app: abc_deploy
+        app: abc-deploy
     spec:
       containers:
       - name: abc-app
         image: vijay1453/abc_tech:latest
         ports:
-        - containerPort: 9090  # Updated to match the Dockerfile
+        - containerPort: 9090  # Match this with the port in your Dockerfile
 
 ---
 
@@ -28,11 +28,10 @@ metadata:
   name: abc-nodeport-svc
 spec:
   selector:
-    app: abc_deploy
+    app: abc-deploy  # Updated to match the deployment name
   ports:
     - protocol: TCP
       port: 80                   # External service port
-      targetPort: 9090           # Updated to match containerPort
-      nodePort: 30000            # NodePort, within the valid range
-  type: NodePort                 # Correct indentation for the NodePort service type
-
+      targetPort: 9090           # Match containerPort
+      nodePort: 30000            # NodePort
+  type: NodePort
